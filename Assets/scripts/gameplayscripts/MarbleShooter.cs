@@ -3,6 +3,9 @@ using UnityEngine.InputSystem;
 
 public class MarbleShooter : MonoBehaviour
 {
+    public LineRenderer lineRenderer;
+    public float maxForce = 8f;
+
     public float forceMultiplier = 10f;
     private Rigidbody rb;
 
@@ -14,30 +17,57 @@ public class MarbleShooter : MonoBehaviour
     void Awake()
     {
         rb = GetComponent<Rigidbody>();
+        lineRenderer.enabled = false;
     }
 
     void Update()
+{
+    if (Mouse.current.leftButton.wasPressedThisFrame)
+{
+    Ray ray = Camera.main.ScreenPointToRay(Mouse.current.position.ReadValue());
+    RaycastHit hit;
+
+    if (Physics.Raycast(ray, out hit))
     {
-        if (Mouse.current.leftButton.wasPressedThisFrame)
+        if (hit.collider.gameObject == gameObject)
         {
             startDragPosition = GetMouseWorldPosition();
             isDragging = true;
-        }
-
-        if (Mouse.current.leftButton.wasReleasedThisFrame && isDragging)
-        {
-            endDragPosition = GetMouseWorldPosition();
-            Shoot();
-            isDragging = false;
+            lineRenderer.enabled = true;
         }
     }
+}
+
+    if (isDragging)
+    {
+        Vector3 currentDragPosition = GetMouseWorldPosition();
+        Vector3 direction = startDragPosition - currentDragPosition;
+        direction.y = 0f;
+
+        if (direction.magnitude > maxForce)
+        {
+            direction = direction.normalized * maxForce;
+        }
+
+        lineRenderer.SetPosition(0, transform.position);
+        lineRenderer.SetPosition(1, transform.position + direction);
+    }
+
+    if (Mouse.current.leftButton.wasReleasedThisFrame && isDragging)
+    {
+        endDragPosition = GetMouseWorldPosition();
+        Shoot();
+        isDragging = false;
+        lineRenderer.enabled = false;
+    }
+}
 
     void Shoot()
 {
     Vector3 direction = startDragPosition - endDragPosition;
-    direction.y = 0.5f;
+    direction.y = 1f;
 
-    float maxForce = 30f;
+    float maxForce = 40f;
 
     if (direction.magnitude > maxForce)
     {
