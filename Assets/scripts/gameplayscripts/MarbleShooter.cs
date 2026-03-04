@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class MarbleShooter : MonoBehaviour
 {
@@ -17,13 +18,13 @@ public class MarbleShooter : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetMouseButtonDown(0))
+        if (Mouse.current.leftButton.wasPressedThisFrame)
         {
             startDragPosition = GetMouseWorldPosition();
             isDragging = true;
         }
 
-        if (Input.GetMouseButtonUp(0) && isDragging)
+        if (Mouse.current.leftButton.wasReleasedThisFrame && isDragging)
         {
             endDragPosition = GetMouseWorldPosition();
             Shoot();
@@ -32,14 +33,23 @@ public class MarbleShooter : MonoBehaviour
     }
 
     void Shoot()
+{
+    Vector3 direction = startDragPosition - endDragPosition;
+    direction.y = 0.5f;
+
+    float maxForce = 30f;
+
+    if (direction.magnitude > maxForce)
     {
-        Vector3 direction = startDragPosition - endDragPosition;
-        rb.AddForce(direction * forceMultiplier, ForceMode.Impulse);
+        direction = direction.normalized * maxForce;
     }
 
+    rb.AddForce(direction * forceMultiplier, ForceMode.Impulse);
+}
+    
     Vector3 GetMouseWorldPosition()
     {
-        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        Ray ray = Camera.main.ScreenPointToRay(Mouse.current.position.ReadValue());
         Plane plane = new Plane(Vector3.up, Vector3.zero);
 
         if (plane.Raycast(ray, out float distance))
