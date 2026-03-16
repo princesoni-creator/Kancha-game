@@ -16,6 +16,13 @@ public class GameManager : MonoBehaviour
         Instance = this;
         DontDestroyOnLoad(gameObject);
     }
+    public void MarbleKnockedOut(Marble marble)
+{
+    Debug.Log("Marble Out!");
+
+    // Yaha score increment karo
+    // Yaha turn logic check karo
+}
 
     private void Start()
     {

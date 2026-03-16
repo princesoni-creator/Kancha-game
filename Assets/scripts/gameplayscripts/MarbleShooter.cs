@@ -13,11 +13,14 @@ public class MarbleShooter : MonoBehaviour
     private Vector3 endDragPosition;
 
     private bool isDragging = false;
-
+    AudioSource hitSound;
+    CameraShake camShake;
     void Awake()
     {
         rb = GetComponent<Rigidbody>();
         lineRenderer.enabled = false;
+        hitSound = GetComponent<AudioSource>();
+        camShake = Camera.main.GetComponent<CameraShake>();
     }
 
     void Update()
@@ -59,6 +62,14 @@ public class MarbleShooter : MonoBehaviour
         Shoot();
         isDragging = false;
         lineRenderer.enabled = false;
+    }
+}
+void OnCollisionEnter(Collision collision)
+{
+    if(collision.gameObject.CompareTag("Wall"))
+    {
+        hitSound.Play();
+        camShake.Shake(0.1f);
     }
 }
 
